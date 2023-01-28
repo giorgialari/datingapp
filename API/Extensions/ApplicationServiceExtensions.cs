@@ -1,4 +1,3 @@
-
 //Classe che raccoglie i dati dei servizi del Program.cs
 using API.Data;
 using API.Interfaces;
@@ -12,16 +11,16 @@ namespace API.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services,
         IConfiguration config)
         {
-            //Configurazione DB
+            //Configurazione del contesto di dati per l'utilizzo del database
             services.AddDbContext<DataContext>(opt =>
             {
-                //Stringa di configurazione
+                //Usa la stringa di configurazione "DefaultConnection" per configurare l'accesso al database Sqlite
                 opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
             });
 
-            //Configurazione CORS
+            //Abilita la configurazione CORS per consentire richieste da origini diverse
             services.AddCors();
-            //Configurazione Token per l'accesso ai servizi HTTP
+            //Registra il servizio ITokenService per la generazione e la verifica dei token di accesso
             services.AddScoped<ITokenService, TokenService>();
 
             return services;
