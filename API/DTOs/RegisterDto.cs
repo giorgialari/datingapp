@@ -15,6 +15,7 @@ namespace API.DTOs
         public string Username { get; set; }
 
         [Required] // Indica che il campo è obbligatorio
+        [StringLength(8, MinimumLength = 4)] // Lunghezza max psw 8, lunghezza min 4
         public string Password { get; set; }
     }
 }
