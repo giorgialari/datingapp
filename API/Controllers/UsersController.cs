@@ -1,34 +1,38 @@
 using API.Data;
+using API.DTOs;
 using API.Entities;
-using Microsoft.AspNetCore.Authorization; // Include del namespace per l'autorizzazione
-using Microsoft.AspNetCore.Mvc; // Include del namespace per il supporto di MVC
-using Microsoft.EntityFrameworkCore; // Include del namespace per l'utilizzo di Entity Framework Core
+using API.Interfaces;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [Authorize] // Specifica che questo controller richiede autorizzazione per essere utilizzato
+    [Authorize]
     public class UsersController : BaseApiController
     {
-        private readonly DataContext _context; // Inizializzazione di un'istanza del DataContext
-        public UsersController(DataContext context)
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
+        public UsersController(IUserRepository userRepository, IMapper mapper)
         {
-            _context = context; // Assegnazione del DataContext alla proprietà privata
+            _mapper = mapper;
+            _userRepository = userRepository;
         }
 
-        [AllowAnonymous] // Specifica che questo metodo non richiede autorizzazione per essere utilizzato
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
         {
-            var users = await _context.Users.ToListAsync(); // Caricamento dell'elenco degli utenti dal database
+            var users = await _userRepository.GetMembersAsync();
 
-            return users; // Restituzione dell'elenco degli utenti
+            return Ok(users);
         }
 
-        [HttpGet("{id}")] // Specifica che questo metodo può essere chiamato specificando un id come parametro nell'URL
-        public async Task<ActionResult<AppUser>> GetUser(int id)
+        [HttpGet("{username}")]
+
+        public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
-            return await _context.Users.FindAsync(id); // Caricamento dell'utente dal database in base all'id specificato
+            return await _userRepository.GetMemberAsync(username);
         }
     }
-
 }

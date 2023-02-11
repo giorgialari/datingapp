@@ -1,5 +1,7 @@
+using API.Data;
 using API.Extensions;
 using API.Middleware;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +49,22 @@ app.UseAuthorization();
 
 // Mappa i controllers per le richieste
 app.MapControllers();
+
+//Serve a ricreare un db pulito prendendo i dati direttamente dal json, se il db non esiste ne crea uno nuovo, 
+//se esiste invece mantiene quello esistente
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+try 
+{
+    var context = services.GetRequiredService<DataContext>();
+    await context.Database.MigrateAsync();
+    await Seed.SeedUsers(context);
+}
+catch (Exception ex)
+{
+    var logger = services.GetService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred during migration");
+}
 
 // Esegue l'applicazione
 app.Run();
